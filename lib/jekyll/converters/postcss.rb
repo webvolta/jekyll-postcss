@@ -32,7 +32,7 @@ module Jekyll
         @raw_digest = Digest::MD5.hexdigest content
         @raw_import_digests = import_digests(content)
 
-        if cache_miss.any?
+        if skip_cache?
           @raw_cache = @raw_digest.dup
           @import_raw_cache = @raw_import_digests.dup
 
@@ -62,6 +62,11 @@ module Jekyll
         @raw_import_digests
           .map { |import, hash| @import_raw_cache[import] != hash }
           .unshift(@raw_cache != @raw_digest)
+      end
+
+      def skip_cache?
+        return true if ENV['SKIP_CACHING_CSS'].to_s != ''
+        cache_miss.any?
       end
 
       def reset
